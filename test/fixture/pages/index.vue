@@ -41,6 +41,8 @@
       </li>
       <li><nuxt-link to="/meta">meta</nuxt-link></li>
       <li><nuxt-link to="/wrappers">wrappers</nuxt-link></li>
+      <li><nuxt-link to="/asyncdata">asyncdata</nuxt-link></li>
+      <li><nuxt-link to="/asyncsetup">asyncsetup</nuxt-link></li>
     </ul>
     <div>TTFB: {{ ttfb }}ms</div>
   </main>

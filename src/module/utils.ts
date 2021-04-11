@@ -63,8 +63,13 @@ export function getNuxtGlobals(this: ModuleThis) {
     ((globalName: string) => `__${globalName.toUpperCase()}__`)
   const globalNuxtFactory =
     nuxtOptions.globals.nuxt || ((globalName: string) => `$${globalName}`)
+  const globalNuxtReadyFactory =
+    nuxtOptions.globals.readyCallback ||
+    ((globalName: string) =>
+      `on${globalName[0].toUpperCase() + globalName.slice(1)}Ready`)
   const globalContext = globalContextFactory(globalName)
   const globalNuxt = globalNuxtFactory(globalName)
+  const globalNuxtReady = globalNuxtReadyFactory(globalName)
 
-  return { globalContext, globalNuxt }
+  return { globalContext, globalNuxt, globalNuxtReady }
 }

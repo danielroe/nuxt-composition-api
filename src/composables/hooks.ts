@@ -1,5 +1,6 @@
 import type { Plugin } from '@nuxt/types'
 import type { SetupContext } from '@vue/composition-api'
+import { globalNuxt, globalNuxtReady } from './globals'
 import { getHeadOptions } from './meta'
 
 import { reqRefs } from './req-ref'
@@ -47,6 +48,12 @@ export const globalPlugin: Plugin = context => {
   if (process.server) {
     reqRefs.forEach(reset => reset())
     setSSRContext(context.app)
+  }
+
+  if (process.client) {
+    ;(window as any)[globalNuxtReady](() => {
+      ;(window[globalNuxt] as any).__isReady = true
+    })
   }
 
   const { setup } = context.app

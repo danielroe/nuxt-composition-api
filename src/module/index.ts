@@ -27,7 +27,9 @@ const compositionApiModule: Module<never> = function compositionApiModule() {
   // Register entrypoint (where all user-facing content consumed within vite/webpack is located)
 
   const { staticPath } = prepareUseStatic.call(this)
-  const { globalContext, globalNuxt } = getNuxtGlobals.call(this)
+  const { globalContext, globalNuxt, globalNuxtReady } = getNuxtGlobals.call(
+    this
+  )
 
   const routerBase = withTrailingSlash(nuxtOptions.router.base)
   const publicPath = withTrailingSlash(nuxtOptions.build.publicPath)
@@ -41,6 +43,7 @@ const compositionApiModule: Module<never> = function compositionApiModule() {
     // Throughout
     globalContext,
     globalNuxt,
+    globalNuxtReady,
   })
 
   nuxtOptions.alias['@nuxtjs/composition-api'] = entryFile
