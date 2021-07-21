@@ -23,6 +23,10 @@ const compositionApiModule: Module<never> = function compositionApiModule() {
 
   // Define @vue/composition-api resolution to prevent using different versions of @vue/composition-api
 
+  nuxtOptions.alias['@vue/composition-api/dist/vue-composition-api.esm.js'] =
+    this.nuxt.resolver.resolveModule(
+      '@vue/composition-api/dist/vue-composition-api.esm.js'
+    )
   nuxtOptions.alias['@vue/composition-api'] =
     nuxtOptions.alias['@vue/composition-api'] ||
     this.nuxt.resolver.resolveModule(
