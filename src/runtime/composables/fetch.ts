@@ -1,4 +1,5 @@
 import {
+  ref,
   isRef,
   onBeforeMount,
   onServerPrefetch,
@@ -49,7 +50,11 @@ function createGetCounter(counterObject: Record<string, any>, defaultKey = '') {
 }
 
 interface Fetch {
-  (context: ComponentInstance): void | Promise<void>
+  (context: ComponentInstance): any | Promise<any>
+}
+interface UseFetchOptions {
+  expose?: string,
+  manual?: boolean,
 }
 
 const fetches = new WeakMap<ComponentInstance, Fetch[]>()
@@ -266,12 +271,54 @@ function getKey(vm: AugmentedComponentInstance) {
     },
   })
   ```
+
+  ```ts
+  import { defineComponent, ref, useFetch } from '@nuxtjs/composition-api'
+  import axios from 'axios'
+
+  export default defineComponent({
+    setup() {
+      const { fetch, fetchState, data } = useFetch(
+        async () => {
+          // The return value will be set to
+          return await axios.get('https://myapi.com/name')
+        },
+        {
+          manual: true, // Disable auto fetch unless `fetch()` is called manually
+          expose: 'name', // The name exposed to the template by which can access the hook's return value 
+        },
+      )
+      
+      // Manually trigger a refetch
+      fetch()
+
+      // Access the returned value of fetch hook
+      data.value
+    },
+  })
+  ```
  */
-export const useFetch = (callback: Fetch) => {
+export const useFetch = (callback: Fetch, options: UseFetchOptions) => {
   const vm = getCurrentInstance() as AugmentedComponentInstance | undefined
   if (!vm) throw new Error('This must be called within a setup function.')
 
-  registerCallback(vm, callback)
+  const resultData = ref()
+  let callbackProxy: Fetch = async function (this: any, ...args) {
+    const result = await callback.apply(this, args)
+    resultData.value = result
+    return result
+  }
+  if (options.manual) {
+    let callbackManually:Fetch = () => {
+      callbackManually = callbackProxy
+    }
+    registerCallback(vm, callbackManually)
+  } else {
+    registerCallback(vm, callbackProxy)
+  }
+  if (options.expose) {
+    vm[options.expose] = resultData
+  }
 
   if (typeof vm.$options.fetchOnServer === 'function') {
     vm._fetchOnServer = vm.$options.fetchOnServer.call(vm) !== false
@@ -293,6 +340,7 @@ export const useFetch = (callback: Fetch) => {
       fetchState: vm!.$fetchState,
       $fetch: vm!.$fetch,
       $fetchState: vm!.$fetchState,
+      data: resultData,
     }
   }
 
