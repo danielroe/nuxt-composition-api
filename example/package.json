@@ -17,6 +17,6 @@
     "post-update": "yarn upgrade --latest"
   },
   "volta": {
-    "node": "12.22.1"
+    "node": "12.22.3"
   }
 }
